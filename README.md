@@ -71,3 +71,10 @@ oc project monitoring
 oc adm policy add-cluster-role-to-user cluster-reader system:serviceaccount:$(oc project -q):default
 ```
 
+```code
+oc logs -f $(oc get pods -o name -l app=prometheus)
+```
+
+Navigate to the prometheus url and view the status of the *targets*.
+
+## Add an HAProxy metrics exporter
