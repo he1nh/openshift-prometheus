@@ -9,7 +9,7 @@ To be given at 2016/01/19 at the OpenShift meetup.
 |OpenShift        | OpenShift Origin v1.3    |
 
 
-# Deploying Prometheus within OpenShift Origin
+## Deploying Prometheus within OpenShift Origin
 
 ```code
 oc cluster up
@@ -45,3 +45,8 @@ Navigate to above URL and browse trough the different targets in the *status* pu
 
 ![Prometheus Screenshot](/images/prometheus-screenshot-1.png)
 
+## Modify the default prometheus config `/etc/prometheus/prometheus.yml`
+
+```code
+oc ceate configmap prometheus-config --from-file config/prometheus-kubernetes.yml
+```
