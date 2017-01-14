@@ -50,3 +50,9 @@ Navigate to above URL and browse trough the different targets in the *status* pu
 ```code
 oc ceate configmap prometheus-config --from-file config/prometheus-kubernetes.yml
 ```
+
+Add the configmap to the *deploymentconfig* or replace the current *deploymentconfig* with one wich has the *configmap* already included:
+
+```code
+oc create -f infra/dc.prometheus.yml
+```code
