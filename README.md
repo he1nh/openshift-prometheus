@@ -3,7 +3,14 @@
 This repo contains the files for the presentation of monitoring OpenShift with Prometheus.
 To be given at 2016/01/19 at the OpenShift meetup.
 
-# Deploying Prometheus (v1.4.1) within OpenShift Origin (1.3)
+# Deploying Prometheus within OpenShift Origin
+
+Versions used:
+
+| software        | version |
+|-----------------|---------|
+|Prometheus       | v1.4.1  |
+|OpenShift Origin | v1.3    |
 
 ```code
 oc cluster up
