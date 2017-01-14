@@ -41,7 +41,7 @@ Lets acces Prometheus
 oc expose svc prometheus
 oc get routes
 ```
-Browse to above URL and loop trough the different targets in the *status* pulldown menu.
+Navigate to above URL and browse trough the different targets in the *status* pulldown menu.
 
 ![Prometheus Screenshot](/images/prometheus-screenshot-1.png)
 
