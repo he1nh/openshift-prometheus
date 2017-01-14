@@ -33,5 +33,8 @@ Lets acces Prometheus
 
 ```code
 oc expose svc prometheus
+oc get routes
 ```
+
+Browse the URL in above route definition.
 
