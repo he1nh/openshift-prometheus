@@ -45,7 +45,7 @@ Navigate to above URL and browse trough the different targets in the *status* pu
 
 ![Prometheus Screenshot](/images/prometheus-screenshot-1.png)
 
-## Modify the default prometheus config `/etc/prometheus/prometheus.yml`
+## Modify the default prometheus config
 
 ```code
 oc ceate configmap prometheus-config --from-file config/prometheus-kubernetes.yml
@@ -55,4 +55,4 @@ Add the configmap to the *deploymentconfig* or replace the current *deploymentco
 
 ```code
 oc create -f infra/dc.prometheus.yml
-```code
+```
