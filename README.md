@@ -1,17 +1,16 @@
-# monitoring OpenShift with Prometheus (for OpenShift meetup)
+# Monitoring OpenShift with Prometheus
 
 This repo contains the files for the presentation of monitoring OpenShift with Prometheus.
 To be given at 2016/01/19 at the OpenShift meetup.
 
-## manual
-
-create a new project/namespace
+# Deploying Prometheus (v1.4.1) within OpenShift Origin (1.3)
 
 ```code
+oc cluster up
 oc new-project monitoring
 ```
 
-create prometheus pod,deploymentconfig and service based on the dockerhub prometheus image:
+create prometheus *pod,deploymentconfig* and *service* based on the dockerhub prometheus image:
 
 ```code
 oc run prometheus --image=prom/prometheus:v1.4.1 --port=9090 --expose -l app=prometheus
