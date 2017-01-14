@@ -22,8 +22,9 @@ create prometheus *pod,deploymentconfig* and *service* based on the dockerhub pr
 oc run prometheus --image=prom/prometheus:v1.4.1 --port=9090 --expose -l app=prometheus
 ```
 
-The prometheus binary in above pod will fail to start because it is assuming root rights.. Allow all pods within the monitoring project
-to be started as root. By adding the default user to the anyuid security context constraint. And bring it into effect by redeploying the pod.
+The prometheus server will fail to start because it is assuming it is running under the root account.
+To allow all pods within the monitoring project to be run under any user account (including root) perform below command.
+Which will add the default user to the anyuid security context constraint.
 
 ```code
 oc login -u system:admin
