@@ -1,6 +1,6 @@
 # Monitoring OpenShift with Prometheus
 
-This repo contains files for deploying Prometheus on OpenShift.
+This project contains files for deploying Prometheus on OpenShift.
 
 | software        | version                  |
 |-----------------|--------------------------|
@@ -53,22 +53,22 @@ oc get routes
 ## Prometheus
 
 Navigate to above URL.
-And browse trough the different targets in the *status* pulldown menu.
+And browse trough the different targets in the *status* pull-down menu.
 
 ![Prometheus Screenshot](/images/prometheus-screenshot-1.png)
 
 ## Cluster monitoring
 
-To monitor the cluster with OpenShift we will be using the kubernetes serivce discovery feature in Prometheus.
+To monitor the cluster with OpenShift we will be using the kubernetes service discovery feature in Prometheus.
 Using the prometheus configuration from the Prometheus documentation.
 
 create a *configmap* which holds the Prometheus configuration file
 
 ```code
-oc ceate configmap prometheus-config --from-file config/prometheus-kubernetes.yml
+oc create configmap prometheus-config --from-file config/prometheus-kubernetes.yml
 ```
 
-Add the configmap to the *deploymentconfig* or replace the current *deploymentconfig* with one wich has the *configmap* already included:
+Add the configmap to the *deploymentconfig* or replace the current *deploymentconfig* with one which has the *configmap* already included:
 
 ```code
 oc replace -f objects/dc.prometheus.yml
@@ -92,7 +92,7 @@ oc adm policy add-cluster-role-to-user cluster-reader system:serviceaccount:$(oc
 oc logs -f $(oc get pods -o name -l app=prometheus)
 ```
 
-Navigate to the prometheus url and view the status of the *targets*.
+Navigate to the prometheus URL and view the status of the *targets*.
 
 ## Adding router metrics
 
@@ -119,13 +119,13 @@ USER=<username>
 PASS=<password>
 ```
 
-Besides html the *stats* page can also deliver the metrics in *csv* format by using `/;csv`
+Besides HTML the *stats* page can also deliver the metrics in *csv* format by using `/;csv`
 
 ### haproxy-exporter
 
 Since Prometheus needs the metric presented differently we will be using an *exporter*. Which will convert the *csv* data and present it in the Prometheus format in a */metrics* target.
 
-The username and password for accessing the *HAPproxy* metrics are stored as *base64* encoded strings within (/objects/haproxy-secret.yml).
+The username and password for accessing the *HAProxy* metrics are stored as *base64* encoded strings within (/objects/haproxy-secret.yml).
 You will need to modify this file and add your values before continuing
 
 ```code
