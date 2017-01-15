@@ -15,7 +15,7 @@ oc cluster up
 oc new-project monitoring
 ```
 
-## Starting a Pod *by hand*
+## Starting Prometheus  *by hand*
 
 create the Prometheus *pod,deploymentconfig* and *service* based on the dockerhub prometheus image:
 
@@ -23,9 +23,9 @@ create the Prometheus *pod,deploymentconfig* and *service* based on the dockerhu
 oc run prometheus --image=prom/prometheus:v1.4.1 --port=9090 --expose -l app=prometheus
 ```
 
-The prometheus server will fail to start because it is assuming it is running under the root account.
-To allow all pods within the monitoring project to be run under any user account (including root) perform below command.
-Which will add the default user to the anyuid security context constraint.
+| The Prometheus server running in above pod will fail to start because it is assuming it is running under the root account.
+| To allow all pods within the monitoring project to be run under any user account (including root) perform below command.
+| Which will add the default user to the anyuid security context constraint.
 
 ```code
 oc login -u system:admin
