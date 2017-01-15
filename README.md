@@ -20,7 +20,7 @@ oc new-project monitoring
 
 ## Starting Prometheus  *by hand*
 
-create the Prometheus *pod,deploymentconfig* and *service* based on the dockerhub prometheus image:
+create the Prometheus *pod*, *deploymentconfig* and *service* based on the dockerhub prometheus image:
 
 ```code
 oc run prometheus --image=prom/prometheus:v1.4.1 --port=9090 --expose -l app=prometheus
