@@ -119,7 +119,7 @@ USER=<username>
 PASS=<password>
 ```
 
-![haproxy statistics screenshot](/screenshots/haproxy-stats-screenshot-1.png)
+![haproxy statistics screenshot](/screenshots/haproxy-stats-screenshot.png)
 
 Besides HTML the *stats* page can also deliver the metrics in *csv* format by using `/;csv`
 
