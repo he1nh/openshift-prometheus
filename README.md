@@ -1,7 +1,6 @@
 # Monitoring OpenShift with Prometheus
 
-This repo contains the files for the presentation of monitoring OpenShift with Prometheus.
-To be given at 2016/01/19 at the OpenShift meetup.
+This repo contains files for deploying Prometheus on OpenShift.
 
 | software        | version                  |
 |-----------------|--------------------------|
@@ -54,10 +53,10 @@ oc ceate configmap prometheus-config --from-file config/prometheus-kubernetes.ym
 Add the configmap to the *deploymentconfig* or replace the current *deploymentconfig* with one wich has the *configmap* already included:
 
 ```code
-oc create -f infra/dc.prometheus.yml
+oc replace -f infra/dc.prometheus.yml
 ```
 
-Though the new pod will be running, not everything is as it should be. Show the logging of the *prometheus-* pod.
+Though the new pod will be running, not everything is as it should be. Have a look at the Prometheus server logging.
 
 ```code
 oc logs $(oc get pods -o name -l app=prometheus)
@@ -78,3 +77,16 @@ oc logs -f $(oc get pods -o name -l app=prometheus)
 Navigate to the prometheus url and view the status of the *targets*.
 
 ## Add an HAProxy metrics exporter
+
+In below steps we will add a pod which will convert the *HAProxy* metrics which are in *csv* format, to a Prometheus scrape target. And add the target to the prometheus config file.
+
+```code
+oc create -f infra dc.haproxy-exporter.yml
+```
+
+Grab the HAProxy user:password from within the router pod
+
+```code
+oc exec -n default $(oc get pods -l deploymentconfig=router -o name -n default|cut -d/ -f2) grep auth /var/lib/haproxy/conf/haproxy.config
+```
+q
