@@ -93,6 +93,20 @@ Navigate to the prometheus url and view the status of the *targets*.
 
 ## Adding router metrics
 
+For routing OpenShift makes use of an *HAProxy* instance(s).
+Which runs in a pod under the *default* namespace.
+
+```code
+oc login -u system:admin
+oc get pods -n default
+```
+
+This instance is configured to provide performance metrics via the *;csv?* target
+
+```code
+oc rsh [router]
+cat /var/lib/haproxy/conf/haproxy.config
+```
 
 In below steps we will add a pod which will convert the *HAProxy* metrics which are in *csv* format, to a Prometheus scrape target. And add the target to the prometheus config file.
 
