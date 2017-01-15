@@ -97,11 +97,20 @@ For routing OpenShift makes use of an *HAProxy* instance(s).
 Which runs in a pod under the *default* namespace.
 
 ```code
-oc login -u system:admin
-oc get pods -n default
+oc login -u system:admin -n default
+oc get pods
 ```
 
-This instance is configured to provide performance metrics via the *;csv?* target
+This instance is configured to provide performance metrics via the *stats* option.
+Protected by a username:password combination.
+
+```code
+oc exec [router pod] grep auth /var/lib/haproxy/conf/haproxy.config
+```
+
+Modify below URL to your retrieved password:
+
+http://admin:JhQPJwzsoT@172.30.68.100:1936/\;csv
 
 ```code
 oc rsh [router]
