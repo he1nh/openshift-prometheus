@@ -55,7 +55,7 @@ oc get routes
 Navigate to above URL.
 And browse trough the different targets in the *status* pull-down menu.
 
-![Prometheus Screenshot](/images/prometheus-screenshot-1.png)
+![prometheus screenshot](/screenshots/prometheus-screenshot-1.png)
 
 ## Cluster monitoring
 
@@ -96,7 +96,7 @@ Navigate to the prometheus URL and view the status of the *targets*.
 
 ## Adding router metrics
 
-For routing OpenShift makes use of an *HAProxy* instance(s).
+For routing, OpenShift makes use of an *HAProxy* instance(s).
 Which runs in a pod under the *default* namespace.
 
 ```code
@@ -108,16 +108,18 @@ oc get services
 This instance is configured to provide performance metrics on port *1936* via the *stats* option, protected by a username:password combination.
 
 ```code
-oc exec [router pod] grep auth /var/lib/haproxy/conf/haproxy.config
+oc exec <router pod> grep auth /var/lib/haproxy/conf/haproxy.config
 ```
 
 We will be needing above values later on.
-So store the in a local environment variable
+So store them in a local environment variable
 
 ```code
 USER=<username>
 PASS=<password>
 ```
+
+![haproxy statistics screenshot](/screenshots/haproxy-stats-screenshot-1.png)
 
 Besides HTML the *stats* page can also deliver the metrics in *csv* format by using `/;csv`
 
