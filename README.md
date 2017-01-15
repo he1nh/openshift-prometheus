@@ -24,29 +24,42 @@ oc run prometheus --image=prom/prometheus:v1.4.1 --port=9090 --expose -l app=pro
 ```
 
 > The Prometheus server running in above pod will fail to start because it is assuming it is running under the root account.
-> To allow all pods within the monitoring project to be run under any user account (including root) perform below command.
-> Which will add the default user to the anyuid security context constraint.
+
+Allow the server to be started up under any account (including root).
+By adding the default project user to the anyuid security context constraint (scc).
 
 ```code
 oc login -u system:admin
 oc adm policy add-scc-to-user anyuid -z default -n monitoring
 ```
+
+Redeploy Prometheus
+
 ```code
 oc deploy prometheus --latest --follow
 oc get pods
 ``` 
 
-Lets acces Prometheus
+Expose the created service, so we can access it from outside the cluster
 
 ```code
 oc expose svc prometheus
 oc get routes
 ```
-Navigate to above URL and browse trough the different targets in the *status* pulldown menu.
+
+## Prometheus
+
+Navigate to above URL.
+And browse trough the different targets in the *status* pulldown menu.
 
 ![Prometheus Screenshot](/images/prometheus-screenshot-1.png)
 
-## Modify the default prometheus config
+## Cluster monitoring
+
+To monitor the cluster with OpenShift we will be using the kubernetes serivce discovery feature in Prometheus.
+Using the prometheus configuration from the Prometheus documentation.
+
+creat a configmap holding the prometheus configuartion file
 
 ```code
 oc ceate configmap prometheus-config --from-file config/prometheus-kubernetes.yml
@@ -64,7 +77,7 @@ Though the new pod will be running, not everything is as it should be. Have a lo
 oc logs $(oc get pods -o name -l app=prometheus)
 ```
 
-The kubernetes service discovery tries to query the API server but does not have the rights.
+The kubernetes service discovery tries to query the API server but does not have the rights within OpenShift.
 
 ```code
 oc login -u system:admin
@@ -78,7 +91,8 @@ oc logs -f $(oc get pods -o name -l app=prometheus)
 
 Navigate to the prometheus url and view the status of the *targets*.
 
-## Add an HAProxy metrics exporter
+## Adding router metrics
+
 
 In below steps we will add a pod which will convert the *HAProxy* metrics which are in *csv* format, to a Prometheus scrape target. And add the target to the prometheus config file.
 
