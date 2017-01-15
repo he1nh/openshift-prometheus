@@ -42,12 +42,12 @@ items:
             - name: USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: haproxy-credentials
+                  name: haproxy-secret
                   key: username
             - name: PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: haproxy-credentials
+                  name: haproxy-secret
                   key: password
         dnsPolicy: ClusterFirst
         restartPolicy: Always
