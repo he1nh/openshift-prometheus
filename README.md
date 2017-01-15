@@ -106,6 +106,8 @@ oc get services
 ```
 
 This instance is configured to provide performance metrics on port *1936* via the *stats* option, protected by a username:password combination.
+You can find the username:password combination via multiple ways (*deploymentconfig*, environment variable, etc.).
+Below we will be looing at the *haproxy* configuration file inside the pod.
 
 ```code
 oc exec <router pod> grep auth /var/lib/haproxy/conf/haproxy.config
@@ -142,7 +144,7 @@ And the create the secret.
 oc create -f objects/haproxy-secret.yml
 ```
 
-Now you can create the exporter's *pod*,*service* and *route*
+Now you can create the exporter's *pod* and *service*:
 
 ```code
 oc create -f objects/dc.haproxy-exporter.yml
