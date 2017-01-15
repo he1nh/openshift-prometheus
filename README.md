@@ -62,7 +62,7 @@ And browse trough the different targets in the *status* pulldown menu.
 To monitor the cluster with OpenShift we will be using the kubernetes serivce discovery feature in Prometheus.
 Using the prometheus configuration from the Prometheus documentation.
 
-creat a configmap holding the prometheus configuartion file
+create a *configmap* which holds the Prometheus configuration file
 
 ```code
 oc ceate configmap prometheus-config --from-file config/prometheus-kubernetes.yml
