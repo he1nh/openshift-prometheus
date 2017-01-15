@@ -109,21 +109,26 @@ oc get pods
 oc get services
 ```
 
-This instance is configured to provide performance metrics on port *1936* via the *stats* option, protected by a username:password combination.
-You can find the username:password combination via multiple ways (*deploymentconfig*, environment variable, etc.).
-Below we will be looing at the *haproxy* configuration file inside the pod.
+OpenShift default configure haproxy to provide performance metrics on port *1936* via the *stats* option in the configuration file.
+However, it is protected by a username:password combination.
+
+> You can find the username:password combination in multiple ways (*deploymentconfig*, environment variable, etc.).
+> Below we will be looing at the *haproxy* configuration file inside the pod.
+
+retrieve the credentials:
 
 ```code
 oc exec <router pod> grep auth /var/lib/haproxy/conf/haproxy.config
 ```
 
-We will be needing above values later on.
-So store them in a local environment variable
+We will be needing above values later on, so store them in a local environment variable
 
 ```code
 USER=<username>
 PASS=<password>
 ```
+
+Using above credentials, navigate to the haproxy stats page:
 
 ![haproxy statistics screenshot](/screenshots/haproxy-stats-screenshot.png)
 
@@ -141,11 +146,11 @@ echo -n $USER | base64
 echo -n $PASS | base64
 ```
 
-Change above values in the *secrets* file.
+Change above values in the *secrets* file (/objects/secrets/haproxy-secret.yml).
 And the create the secret.
 
 ```code
-oc create -f objects/haproxy-secret.yml
+oc create -f objects/secrets/haproxy-secret.yml
 ```
 
 Now you can create the exporter's *pod* and *service*:
