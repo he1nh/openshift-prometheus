@@ -138,7 +138,7 @@ Besides HTML the *stats* page can also deliver the metrics in *csv* format by us
 
 Since Prometheus needs the metric presented differently we will be using an *exporter*. Which will convert the *csv* data and present it in the Prometheus format in a */metrics* target.
 
-The username and password for accessing the *HAProxy* metrics are stored as *base64* encoded strings within (/objects/multi/exporter.yml).
+The username and password for accessing the *HAProxy* stats page are stored as *base64* encoded strings in the [object definition file](/objects/multi/exporter.yml).
 You will need to add the encoded password to the *Secret* section (top of the file) before continuing
 
 ```code
