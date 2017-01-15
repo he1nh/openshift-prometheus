@@ -40,6 +40,7 @@ items:
           - mountPath: /etc/prometheus
             name: config
         dnsPolicy: ClusterFirst
+        serviceAccountName: 'prometheus'
         restartPolicy: Always
         securityContext: {}
         terminationGracePeriodSeconds: 30
@@ -48,7 +49,7 @@ items:
           configMap:
             name: prometheus-config
             items:
-            - key: prometheus-kubernetes.yml
+            - key: prometheus.yml
               path: prometheus.yml
     test: false
     triggers:
