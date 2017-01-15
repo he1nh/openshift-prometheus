@@ -68,7 +68,7 @@ oc ceate configmap prometheus-config --from-file config/prometheus-kubernetes.ym
 Add the configmap to the *deploymentconfig* or replace the current *deploymentconfig* with one wich has the *configmap* already included:
 
 ```code
-oc replace -f infra/dc.prometheus.yml
+oc replace -f objects/dc.prometheus.yml
 ```
 
 Though the new pod will be running, not everything is as it should be. Have a look at the Prometheus server logging.
@@ -99,28 +99,23 @@ Which runs in a pod under the *default* namespace.
 ```code
 oc login -u system:admin -n default
 oc get pods
+oc get services
 ```
 
-This instance is configured to provide performance metrics via the *stats* option.
-Protected by a username:password combination.
+This instance is configured to provide performance metrics on port *1936* via the *stats* option, protected by a username:password combination.
 
 ```code
 oc exec [router pod] grep auth /var/lib/haproxy/conf/haproxy.config
 ```
 
-Modify below URL to your retrieved password:
+Besides html the *stats* page can also deliver the metrics in *csv* format by using `/;csv`
 
-http://admin:JhQPJwzsoT@172.30.68.100:1936/\;csv
+### haproxy-exporter
 
-```code
-oc rsh [router]
-cat /var/lib/haproxy/conf/haproxy.config
-```
-
-In below steps we will add a pod which will convert the *HAProxy* metrics which are in *csv* format, to a Prometheus scrape target. And add the target to the prometheus config file.
+Since Prometheus needs the metric presented differently we will be using an *exporter*. Which will convert the *csv* data and present it in the Prometheus format in a */metrics* target.
 
 ```code
-oc create -f infra dc.haproxy-exporter.yml
+oc create -f objects/dc.haproxy-exporter.yml
 ```
 
 Grab the HAProxy user:password from within the router pod
