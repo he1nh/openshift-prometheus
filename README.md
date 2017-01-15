@@ -111,19 +111,37 @@ This instance is configured to provide performance metrics on port *1936* via th
 oc exec [router pod] grep auth /var/lib/haproxy/conf/haproxy.config
 ```
 
+We will be needing above values later on.
+So store the in a local environment variable
+
+```code
+USER=<username>
+PASS=<password>
+```
+
 Besides html the *stats* page can also deliver the metrics in *csv* format by using `/;csv`
 
 ### haproxy-exporter
 
 Since Prometheus needs the metric presented differently we will be using an *exporter*. Which will convert the *csv* data and present it in the Prometheus format in a */metrics* target.
 
+The username and password for accessing the *HAPproxy* metrics are stored as *base64* encoded strings within (/objects/haproxy-secret.yml).
+You will need to modify this file and add your values before continuing
+
+```code
+echo -n $USER | base64
+echo -n $PASS | base64
+```
+
+Change above values in the *secrets* file.
+And the create the secret.
+
+```code
+oc create -f objects/haproxy-secret.yml
+```
+
+Now you can create the exporter's *pod*,*service* and *route*
+
 ```code
 oc create -f objects/dc.haproxy-exporter.yml
 ```
-
-Grab the HAProxy user:password from within the router pod
-
-```code
-oc exec -n default $(oc get pods -l deploymentconfig=router -o name -n default|cut -d/ -f2) grep auth /var/lib/haproxy/conf/haproxy.config
-```
-q
