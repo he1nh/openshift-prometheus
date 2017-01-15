@@ -138,23 +138,18 @@ Besides HTML the *stats* page can also deliver the metrics in *csv* format by us
 
 Since Prometheus needs the metric presented differently we will be using an *exporter*. Which will convert the *csv* data and present it in the Prometheus format in a */metrics* target.
 
-The username and password for accessing the *HAProxy* metrics are stored as *base64* encoded strings within (/objects/haproxy-secret.yml).
-You will need to modify this file and add your values before continuing
+The username and password for accessing the *HAProxy* metrics are stored as *base64* encoded strings within (/objects/multi/exporter.yml).
+You will need to add the encoded password to the *Secret* section (top of the file) before continuing
 
 ```code
 echo -n $USER | base64
 echo -n $PASS | base64
 ```
 
-Change above values in the *secrets* file (/objects/secrets/haproxy-secret.yml).
-And the create the secret.
+After modifying the object definition file, you can create the *exporter* objects:
 
 ```code
-oc create -f objects/secrets/haproxy-secret.yml
+oc create -f objects/multi/exporter.yml
 ```
 
-Now you can create the exporter's *pod* and *service*:
-
-```code
-oc create -f objects/dc.haproxy-exporter.yml
-```
+> Note: you can troubleshoot the export via `curl http://<exporter svc ip>:9101/metrics | grep haproxy_up`
