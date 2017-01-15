@@ -153,3 +153,12 @@ oc create -f objects/multi/exporter.yml
 ```
 
 > Note: you can troubleshoot the export via `curl http://<exporter svc ip>:9101/metrics | grep haproxy_up`
+
+# Bonus
+
+## grafana
+
+```code
+oc create -f objects/multi/grafana.yml
+oc adm policy add-scc-to-user anyuid -z grafana
+```
