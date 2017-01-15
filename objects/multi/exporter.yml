@@ -29,7 +29,7 @@ items:
       spec:
         containers:
         - args:
-          - -haproxy.scrape-uri=http://$(USERNAME):${PASSWORD}@router/haproxy?stats;csv
+          - -haproxy.scrape-uri=http://$(USERNAME):$(PASSWORD)@router:1936/haproxy?stats;csv
           image: prom/haproxy-exporter
           imagePullPolicy: Always
           name: exporter

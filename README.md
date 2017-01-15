@@ -18,7 +18,7 @@ oc cluster up
 oc new-project monitoring
 ```
 
-## Starting Prometheus  *by hand*
+## deploying Prometheus  *by hand*
 
 create the Prometheus *pod*, *deploymentconfig* and *service* based on the dockerhub prometheus image:
 
@@ -50,7 +50,7 @@ oc expose svc prometheus
 oc get routes
 ```
 
-## Prometheus
+## exploring Prometheus
 
 Navigate to above URL.
 And browse trough the different targets in the *status* pull-down menu.
@@ -62,16 +62,38 @@ And browse trough the different targets in the *status* pull-down menu.
 To monitor the cluster with OpenShift we will be using the kubernetes service discovery feature in Prometheus.
 Using the prometheus configuration from the Prometheus documentation.
 
+> For this demo we will be deploying within the *default* namespace.
+> Do not do this at ~~home~~ your company..
+
+```code
+oc login -u system:admin -n default
+```
+
+create a serviceaccount for prometheus:
+```code
+oc create serviceaccount prometheus
+```
+
+grant it rights to run a pod under any (including root) id
+```code
+oc adm policy add-scc-to-user anyuid -z prometheus
+```
+
+and give the service account rights to read from the OpenShift API server
+```code
+oc adm policy add-cluster-role-to-user cluster-reader system:serviceaccount:default:prometheus
+```
+
 create a *configmap* which holds the Prometheus configuration file
 
 ```code
-oc create configmap prometheus-config --from-file config/prometheus-kubernetes.yml
+oc create configmap prometheus-config --from-file=prometheus.yml=config/prometheus-all.yml
 ```
 
-Add the configmap to the *deploymentconfig* or replace the current *deploymentconfig* with one which has the *configmap* already included:
+Deploy Prometheus using the *deploymentconfig*
 
 ```code
-oc replace -f objects/dc.prometheus.yml
+oc create -f objects/dc/prometheus.yml
 ```
 
 Though the new pod will be running, not everything is as it should be. Have a look at the Prometheus server logging.
