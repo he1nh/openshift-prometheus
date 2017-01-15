@@ -8,12 +8,14 @@ This repo contains files for deploying Prometheus on OpenShift.
 |OpenShift        | OpenShift Origin v1.3    |
 
 
-## Deploying Prometheus within OpenShift Origin
+## Bringing up the cluster and create a new project
 
 ```code
 oc cluster up
 oc new-project monitoring
 ```
+
+## Starting a Pod *by hand*
 
 create the Prometheus *pod,deploymentconfig* and *service* based on the dockerhub prometheus image:
 
