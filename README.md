@@ -7,6 +7,9 @@ This repo contains files for deploying Prometheus on OpenShift.
 |Prometheus       | v1.4.1                   |
 |OpenShift        | OpenShift Origin v1.3    |
 
+> For accessing services, this text assumes you are typing on a computer running a single node cluster.
+> So located within the SDN.
+> When not, you will need to expose (`oc expose svc <service name>`) certain services before you can access them.
 
 ## Bringing up the cluster and create a new project
 
