@@ -1,6 +1,6 @@
 #!/bin/bash
 
-oc create -f serviceaccounts.yml
+oc create -f objects/serviceaccounts.yml
 
 # in images from Docker Hub both prometheus and grafana expect to run as root user
 oc adm policy add-scc-to-user anyuid -z prometheus
