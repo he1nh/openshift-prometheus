@@ -1,6 +1,6 @@
 # Monitoring OpenShift with Prometheus
 
-This project contains files for deploying Prometheus on OpenShift.
+This project contains files for deploying Prometheus on OpenShift used during a demo.
 
 | software        | version                  |
 |-----------------|--------------------------|
@@ -11,7 +11,12 @@ This project contains files for deploying Prometheus on OpenShift.
 > So located within the SDN.
 > When not, you will need to expose (`oc expose svc <service name>`) certain services before you can access them.
 
-## Bringing up the cluster and create a new project
+## Disclaimer
+
+I am not an OpenShift and/or Prometheus expert. Most of this information is at best sub optimal and most likely unsafe
+for production situations.
+
+## Bringing up the cluster
 
 ```code
 oc cluster up
@@ -26,24 +31,25 @@ create the Prometheus *pod*, *deploymentconfig* and *service* based on the docke
 oc run prometheus --image=prom/prometheus:v1.4.1 --port=9090 --expose -l app=prometheus
 ```
 
-> The Prometheus server running in above pod will fail to start because it is assuming it is running under the root account.
+> Note: The Prometheus server running in above pod will fail to start because it is assuming it is running under the root account.
+> you can view the logs via `oc logs -f <prometheus pod>`
 
-Allow the server to be started up under any account (including root).
-By adding the default project user to the anyuid security context constraint (scc).
+To allow the server to be started up under any account (including root).
+Add the default project user to the anyuid security context constraint (scc).
 
 ```code
 oc login -u system:admin
 oc adm policy add-scc-to-user anyuid -z default -n monitoring
 ```
 
-Redeploy Prometheus
+For the changes to take effect you need to redeploy Prometheus
 
 ```code
 oc deploy prometheus --latest --follow
 oc get pods
 ``` 
 
-Expose the created service, so we can access it from outside the cluster
+We are going to access Prometheus with our browser so expose the created service:
 
 ```code
 oc expose svc prometheus
@@ -60,7 +66,7 @@ And browse trough the different targets in the *status* pull-down menu.
 ## Cluster monitoring
 
 To monitor the cluster with OpenShift we will be using the kubernetes service discovery feature in Prometheus.
-Using the prometheus configuration from the Prometheus documentation.
+As defined in the example prometheus-kubernetes configuration coming with the Prometheus source code.
 
 > For this demo we will be deploying within the *default* namespace.
 > Do not do this at ~~home~~ your company..
@@ -153,6 +159,12 @@ oc create -f objects/multi/exporter.yml
 ```
 
 > Note: you can troubleshoot the export via `curl http://<exporter svc ip>:9101/metrics | grep haproxy_up`
+
+## Where to go from here
+
+* Prometheus Querying
+** https://prometheus.io/docs/querying/examples/
+
 
 # Bonus
 
