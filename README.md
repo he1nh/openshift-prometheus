@@ -13,8 +13,8 @@ This project contains files for deploying Prometheus on OpenShift used during a 
 
 ## Disclaimer
 
-I am not an OpenShift and/or Prometheus expert. Most of this information is at best sub optimal and most likely unsafe
-for production situations.
+I am not an OpenShift and/or Prometheus expert and this text has been written for demo purposes.
+So most of the information is at best sub optimal and most likely unsafe for production situations.
 
 ## Bringing up the cluster
 
@@ -25,7 +25,7 @@ oc new-project monitoring
 
 ## deploying Prometheus  *by hand*
 
-create the Prometheus *pod*, *deploymentconfig* and *service* based on the dockerhub prometheus image:
+create the Prometheus *pod*, *deploymentconfig* and *service* based on the docker hub Prometheus image:
 
 ```code
 oc run prometheus --image=prom/prometheus:v1.4.1 --port=9090 --expose -l app=prometheus
@@ -119,7 +119,7 @@ OpenShift default configure haproxy to provide performance metrics on port *1936
 However, it is protected by a username:password combination.
 
 > You can find the username:password combination in multiple ways (*deploymentconfig*, environment variable, etc.).
-> Below we will be looing at the *haproxy* configuration file inside the pod.
+> Below we will be looking at the *haproxy* configuration file inside the pod.
 
 retrieve the credentials:
 
@@ -168,7 +168,7 @@ oc create -f objects/multi/exporter.yml
 
 # Bonus
 
-## grafana
+## Grafana
 
 ```code
 oc create -f objects/multi/grafana.yml
