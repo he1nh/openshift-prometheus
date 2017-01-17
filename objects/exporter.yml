@@ -87,5 +87,18 @@ items:
     type: ClusterIP
   status:
     loadBalancer: {}
+- apiVersion: v1
+  kind: Route
+  metadata:
+    labels:
+      app: exporter
+    name: exporter
+  spec:
+    port:
+      targetPort: 9101
+    to:
+      kind: Service
+      name: exporter
+      weight: 100
 kind: List
 metadata: {}
