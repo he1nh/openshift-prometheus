@@ -129,7 +129,7 @@ Besides an within HTML page the *stats* can also be returned as csv by ending th
 
 ### haproxy-exporter
 
-To convert the *csv* format into a format that Prometheus understands and can retrieve.
+To convert the *csv* output into a format that prometheus understands and can retrieve.
 We will make use of the *haproxy-exporter* which is part of the Prometheus project.
 For accessing the metrics the *exporter* will need to know the username and
 password with which to retrieve the *csv* file. We will store these credentials in a secret.
