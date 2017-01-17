@@ -1,6 +1,7 @@
 # Monitoring OpenShift with Prometheus
 
-This project contains files for deploying Prometheus on OpenShift used during a demo.
+This project contains a description and accompanying files for deploying Prometheus
+on OpenShift for monitoring the cluster.
 
 | software        | version                  |
 |-----------------|--------------------------|
@@ -23,16 +24,26 @@ oc cluster up
 oc new-project monitoring
 ```
 
-## deploying Prometheus  *by hand*
+# The Components
 
-create the Prometheus *pod*, *deploymentconfig* and *service* based on the docker hub Prometheus image:
+* Prometheus for retrieving, storing and querying the metrics
+* an haproxy-exporter for converting the OpenShift router metrics into a format Prometheus understands
+* Grafana for providing a nicer dashboard to the graphs
+
+Befor deploying all components in gone go, we have a brief look at Prometheus and the exporter
+
+## Prometheus
+
+To create a running Prometheus instance based on the docker hub image
 
 ```code
 oc run prometheus --image=prom/prometheus:v1.4.1 --port=9090 --expose -l app=prometheus
 ```
 
-> Note: The Prometheus server running in above pod will fail to start because it is assuming it is running under the root account.
-> you can view the logs via `oc logs -f <prometheus pod>`
+But the Prometheus server running in above pod will fail to start because it is assuming it
+is running under the root account.
+
+> Note: you can view the logs via `oc logs -f <prometheus pod>`
 
 To allow the server to be started up under any account (including root).
 Add the default project user to the anyuid security context constraint (scc).
@@ -42,123 +53,170 @@ oc login -u system:admin
 oc adm policy add-scc-to-user anyuid -z default -n monitoring
 ```
 
-For the changes to take effect you need to redeploy Prometheus
+> Note: later on, we will create a service account for Prometheus.
+
+for the changes to take effect you need to redeploy Prometheus
 
 ```code
 oc deploy prometheus --latest --follow
 oc get pods
 ``` 
 
-We are going to access Prometheus with our browser so expose the created service:
+To access Prometheus from outside the cluster, you need to expose the service which was created by `oc run`
 
 ```code
 oc expose svc prometheus
 oc get routes
 ```
 
-## exploring Prometheus
+### exploring Prometheus
 
 Navigate to above URL.
 And browse trough the different targets in the *status* pull-down menu.
 
 ![prometheus screenshot](/screenshots/prometheus-screenshot-1.png)
 
-## Cluster monitoring
+As you can see, at the moment Prometheus is only monitoring itself. And although handy for getting yourself familiar with the Prometheus query language and general workings. It won't help you in monitoring your cluster. So when you want to do something more usefull you will need to modify the configuration file (*/etc/prometheus/prometheus.yml*) and add some additional *scrape* targets.
 
-To monitor the cluster with OpenShift we will be using the kubernetes service discovery feature in Prometheus.
-As defined in the example prometheus-kubernetes configuration coming with the Prometheus source code.
+In this project we will be using a [configmap](https://docs.openshift.com/container-platform/3.3/dev_guide/configmaps.html) to attach our custom configuration.
 
-> For this demo we will be deploying within the *default* namespace.
-> Do not do this at ~~home~~ your company..
+### 
 
-```code
-oc login -u system:admin -n default
-```
+## Router Metrics
 
-create a serviceaccount for prometheus:
-```code
-oc create serviceaccount prometheus
-```
-
-grant it rights to run a pod under any (including root) id
-```code
-oc adm policy add-scc-to-user anyuid -z prometheus
-```
-
-and give the service account rights to read from the OpenShift API server
-```code
-oc adm policy add-cluster-role-to-user cluster-reader system:serviceaccount:default:prometheus
-```
-
-create a *configmap* which holds the Prometheus configuration file
-
-```code
-oc create configmap prometheus-config --from-file=prometheus.yml=config/prometheus-all.yml
-```
-
-Deploy Prometheus using the *deploymentconfig*
-
-```code
-oc create -f objects/dc/prometheus.yml
-```
-
-Navigate to the prometheus URL and view the status of the *targets*.
-
-## Adding router metrics
-
-For routing, OpenShift makes use of an *HAProxy* instance(s).
-Which runs in a pod under the *default* namespace.
+For routing, OpenShift makes use of one or more  *HAProxy* instance(s).
+Who run under the *default* namespace.
 
 ```code
 oc login -u system:admin -n default
-oc get pods
-oc get services
+oc get pods,services
 ```
 
-OpenShift default configure haproxy to provide performance metrics on port *1936* via the *stats* option in the configuration file.
+Out of the box OpenShift has configured haproxy to provide performance metrics on port *1936*
+via the *stats* option in the configuration file.
 However, it is protected by a username:password combination.
 
-> You can find the username:password combination in multiple ways (*deploymentconfig*, environment variable, etc.).
-> Below we will be looking at the *haproxy* configuration file inside the pod.
-
-retrieve the credentials:
+to retrieve the credentials:
 
 ```code
 oc exec <router pod> grep auth /var/lib/haproxy/conf/haproxy.config
 ```
 
-We will be needing above values later on, so store them in a local environment variable
+> You can find the username:password combination in multiple ways (*deploymentconfig*, environment variable, etc.).
 
-```code
-USER=<username>
-PASS=<password>
-```
-
-Using above credentials, navigate to the haproxy stats page:
+Navigate to the haproxy stats page and use above username and password to login.
 
 ![haproxy statistics screenshot](/screenshots/haproxy-stats-screenshot.png)
 
-Besides HTML the *stats* page can also deliver the metrics in *csv* format by using `/;csv`
+Besides within an HTML the *stats* page can also deliver the metrics in *csv* format
+
+![haproxy statistics screenshot](/screenshots/haproxy-stats-screenshot.png/;csv)
 
 ### haproxy-exporter
 
-Since Prometheus needs the metric presented differently we will be using an *exporter*. Which will convert the *csv* data and present it in the Prometheus format in a */metrics* target.
+To convert the *csv* format into a format that Prometheus understands and can retrieve.
+We will make use of the *haproxy-exporter* which is part of the Prometheus project.
+For accessing the metrics the *exporter* will need to no the username and
+password with which to retrieve the *csv* file. We will store these credentials in a secret.
 
-The username and password for accessing the *HAProxy* stats page are stored as *base64* encoded strings in the [object definition file](/objects/multi/exporter.yml).
-You will need to add the encoded password to the *Secret* section (top of the file) before continuing
-
-```code
-echo -n $USER | base64
-echo -n $PASS | base64
-```
-
-After modifying the object definition file, you can create the *exporter* objects:
+Edit the *exporter* object file and paste in the base64 encoded password string (the username is allready defined).
+And create the objects.
 
 ```code
-oc create -f objects/multi/exporter.yml
+echo -n <password> | base64
+vi objects/exporter.yml
+oc create -f objects/exporter.yml
 ```
 
-> Note: you can troubleshoot the export via `curl http://<exporter svc ip>:9101/metrics | grep haproxy_up`
+After the *exporter* pod has been deployed, you can test if it works by having a look at the converted/exported metrics.
+
+```code
+curl http://<exporter svc ip>:9101/metrics
+```
+
+Pay special attention to the *haproxy_up* metric, this should be one. If it is not, it probably means that
+there is a problem with accessing the *stats*
+
+```code
+curl http://<exporter svc ip>:9101/metrics | grep haproxy_up
+```
+
+# Cluster monitoring
+
+To monitor the OpenShift cluster with Prometheus we will be using the kubernetes service discovery feature in Prometheus.
+As defined in the example prometheus-kubernetes configuration coming with the Prometheus source code.
+
+> For this demo we will be deploying within the *default* namespace.
+> Do not do this at ~~home~~ your company..
+
+## deployment
+
+In this part we are going to deploy
+
+* a haproxy-exporter for exporting the OpenShift router metrics
+* prometheus for scraping the exporter, API server, node(s) and promettheus itself
+* grafana for providing a nicer dashboard
+
+```code
+oc cluster up
+oc login -u system:admin -n default
+```
+
+Create the needed *serviceaccounts* with the provided shell script
+```code
+./create_serviceaccounts.sh
+```
+
+Deploy the exporter,prometheus and grafana in one go using the *all-in-one* *deploymentconfig*
+
+```code
+oc create -f objects/all-in-one.yml
+```
+Have  look at what has been created
+
+```code
+oc get dc,svc,routes,secrets,configmaps -l 'app in (exporter,prometheus,grafana)'
+```
+
+> Note: for more info concerning the usage of the label selection using *sets* see: (https://kubernetes.io/docs/user-guide/labels)
+
+Navigate to the prometheus route URL and have a look at the status of the *targets*.
+If everything went according to plan they should all be up.
+However there is one issue: The *exporter* can't yet authenticate with the router because it does not have the correct password yet.
+
+> OpenShift default configures haproxy to provide performance metrics on port *1936* via the *stats* option in the configuration file.
+> However, it is protected by a username:password combination.
+> You can find the username:password combination in multiple ways (*deploymentconfig*, environment variable, haproxy config file, etc.).
+
+```code
+oc export dc router | grep -A1 STATS_PASS
+```
+
+or
+
+```code
+oc exec <router pod> grep auth /var/lib/haproxy/conf/haproxy.config
+```
+
+Convert the password to a base64 encoded one. And add it to the secret *haproxy-secret*:
+
+```code
+echo -n <value> | base64
+oc edit secret haproxy-secret
+```
+
+Delete the *exporter* pod to have OpenShift create a new one with correct content
+
+```code
+oc delete pod -l app=exporter
+oc get pods -l app=exporter -w
+```
+
+To see if the exporter can now access the haproxy stats, have a look at the exported metrics
+
+```code
+curl http://<export svc ip>:9101/metrics | grep ^haproxy_up
+```
 
 ## Where to go from here
 
