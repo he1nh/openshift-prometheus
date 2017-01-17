@@ -45,10 +45,10 @@ oc login -u developer -n monitoring
 oc run prometheus --image=prom/prometheus:v1.4.1 --port=9090 --expose -l app=prometheus
 ```
 
-The last commond will create a Prometheus:
+The last command will create a:
 * deploymentconfig
-* and service
-and start up a prometheus pod based on the *deploymentconfig*
+* service
+and start up a prometheus *pod* based on the *deploymentconfig*
 
 ```code
 oc get dc,svc
