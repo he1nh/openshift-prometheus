@@ -17,6 +17,16 @@ on OpenShift for monitoring the cluster.
 I am not an OpenShift and/or Prometheus expert and this text has been written for demo purposes.
 So most of the information is at best sub optimal and most likely unsafe for production situations.
 
+# The Components
+
+* Prometheus for retrieving, storing and querying the metrics
+* an haproxy-exporter for converting the OpenShift router metrics into a format Prometheus understands
+* Grafana for providing a nicer dashboard to the graphs
+
+Before deploying everything in one go, we will have a brief look at Prometheus and the exporter in *Part 1*
+
+# Part 1
+
 ## Bringing up the cluster
 
 ```code
@@ -24,15 +34,7 @@ oc cluster up
 oc new-project monitoring
 ```
 
-# The Components
-
-* Prometheus for retrieving, storing and querying the metrics
-* an haproxy-exporter for converting the OpenShift router metrics into a format Prometheus understands
-* Grafana for providing a nicer dashboard to the graphs
-
-Before deploying everything in one go, we will have a brief look at Prometheus and the exporter
-
-## Prometheus
+## Deploying Prometheus
 
 You can create a running Prometheus instance based on the docker hub image via `oc run`. But before you do that. Give the default user account in the project. Rights to start up the pod as the *root* user, by adding the *anyuid* security context constraint (scc) to the user.
 
