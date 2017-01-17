@@ -77,6 +77,22 @@ Create a [configmap](https://docs.openshift.com/container-platform/3.3/dev_guide
 oc create configmap prometheus-config --from-file=prometheus.yml=file/prometheus-kubernetes.yml
 ```
 
+add below to the prometheus *deploymentconfig* (`oc edit dc prometheus`) just below the line `terminationMessagePath: /dev/termination-log`:
+
+```code
+          volumeMounts:
+          - mountPath: /etc/prometheus
+            name: config
+        volumes:
+        - configMap:
+            items:
+            - key: prometheus.yml
+              path: prometheus.yml
+            name: prometheus-config
+          name: config
+```
+
+
 In this project we will be using a [configmap](https://docs.openshift.com/container-platform/3.3/dev_guide/configmaps.html) to attach our custom configuration.
 
 ### 
