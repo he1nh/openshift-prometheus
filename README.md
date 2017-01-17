@@ -89,8 +89,7 @@ add below to the deploymentconfig (`oc edit dc prometheus`) just below the line 
 
 ## Router Metrics
 
-For routing, OpenShift makes use of one or more  *HAProxy* instance(s).
-Who run under the *default* namespace.
+For routing, OpenShift makes use of one or more  *HAProxy* instance(s) which run under the *default* namespace.
 
 ```code
 oc login -u system:admin -n default
