@@ -65,7 +65,7 @@ oc get routes
 
 ### Exploring Prometheus
 
-Navigate to the hostname in the route (http://<hostname>) and browse trough the web interface including the different targets in the *status* pull-down menu.
+Navigate to the hostname in the route and browse trough the web interface including the different targets in the *status* pull-down menu.
 
 ![prometheus screenshot](/screenshots/prometheus-screenshot-1.png)
 
