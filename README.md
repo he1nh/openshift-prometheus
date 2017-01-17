@@ -56,7 +56,7 @@ and start up a prometheus *pod* based on the *deploymentconfig*
 oc get dc,svc
 ```
 
-To access Prometheus from outside the cluster, you need to expose the service which was created by `oc run`
+To access Prometheus from outside the cluster, you need to expose the service which has been created:
 
 ```code
 oc expose svc prometheus
