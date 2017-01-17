@@ -47,18 +47,11 @@ oc login -u developer -n monitoring
 oc run prometheus --image=prom/prometheus:v1.4.1 --port=9090 --expose -l app=prometheus
 ```
 
-The last command will create a:
-
-* deploymentconfig
-* service
-
-and start up a prometheus *pod* based on the *deploymentconfig*
-
 ```code
 oc get dc,svc
 ```
 
-To access Prometheus from outside the cluster, you need to expose the service which has been created:
+expose the service to be able to access prometheus from outside the cluster.
 
 ```code
 oc expose svc prometheus
