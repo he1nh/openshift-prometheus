@@ -67,7 +67,13 @@ And browse trough the different targets in the *status* pull-down menu.
 
 ![prometheus screenshot](/screenshots/prometheus-screenshot-1.png)
 
-As you can see, at the moment Prometheus is only monitoring itself. And although handy for getting yourself familiar with the Prometheus query language and general workings. It won't help you in monitoring your cluster. So when you want to do something more usefull you will need to modify the configuration file (*/etc/prometheus/prometheus.yml*) and add some additional *scrape* targets.
+As you can see, at the moment Prometheus is only monitoring itself. And although handy for getting yourself familiar with the Prometheus query language and general workings. It won't help you in monitoring your cluster. So when you want to do something more usefull you will need to modify the configuration file (*/etc/prometheus/prometheus.yml*) and add some additional *scrape* targets. Whereby we will be using Prometheus's integrated Kubernetes Service Discovery (SD).
+
+create a configmap including the prometheus config file and attach it as a volumemount to the pod by editing the prometheus deployment config
+
+```code
+oc create configmap prometheus-config --from-file=prometheus.yml=file/prometheus-kubernetes.yml
+```
 
 In this project we will be using a [configmap](https://docs.openshift.com/container-platform/3.3/dev_guide/configmaps.html) to attach our custom configuration.
 
