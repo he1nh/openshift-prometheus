@@ -80,16 +80,16 @@ oc create configmap prometheus-config --from-file=prometheus.yml=files/prometheu
 add below to the deploymentconfig (`oc edit dc prometheus`) just below the line `terminationMessagePath: /dev/termination-log`:
 
 ```code
-          volumeMounts:
-          - mountPath: /etc/prometheus
-            name: config
-        volumes:
-        - configMap:
-            items:
-            - key: prometheus.yml
-              path: prometheus.yml
-            name: prometheus-config
+        volumeMounts:
+        - mountPath: /etc/prometheus
           name: config
+      volumes:
+      - configMap:
+          items:
+          - key: prometheus.yml
+            path: prometheus.yml
+          name: prometheus-config
+        name: config
 ```
 
 
