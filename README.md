@@ -215,18 +215,11 @@ curl http://<export svc ip>:9101/metrics | grep ^haproxy_up
 Navigate to the prometheus route URL and have a look at the status of the *targets*.
 If everything went according to plan they should all be up.
 
-
-# Where to go from here
-
-* Prometheus Querying
-** https://prometheus.io/docs/querying/examples/
-
-
-# Bonus
-
 ## Grafana
 
-```code
-oc create -f objects/multi/grafana.yml
-oc adm policy add-scc-to-user anyuid -z grafana
-```
+
+## Where to go from here
+
+* Prometheus Querying
+** (https://prometheus.io/docs/querying/examples/)
+
