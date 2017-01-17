@@ -160,13 +160,16 @@ there is a problem with accessing the *stats*
 curl http://<exporter svc ip>:9101/metrics | grep haproxy_up
 ```
 
+### Adding the haproxy-exporter as a scrape target
+
+I will leave it up to the reader to add the haproxy-export as a srape target to the prometheus configuration file.
+
 # Part 2
 
-To monitor the OpenShift cluster with Prometheus we will be using the kubernetes service discovery feature in Prometheus.
-As defined in the example prometheus-kubernetes configuration coming with the Prometheus source code.
+In this part we are going to deploy the components discussed in *Part 1* all in one go. Plus an additional Grafana instance.
 
-> For this demo we will be deploying within the *default* namespace.
-> Do not do this at ~~home~~ your company..
+> Warning: we will be deploying into the *default* namespace.
+> Do *NOT* do this at ~~home~~ your company..
 
 ## Setup
 
@@ -177,7 +180,7 @@ oc login -u system:admin -n default
 
 ## serviceaccounts
 
-Create the needed *serviceaccounts* with the provided shell script
+Create two service accounts, one for prometheus and one for grafana with the provided shell script
 
 ```code
 ./create_serviceaccounts.sh
