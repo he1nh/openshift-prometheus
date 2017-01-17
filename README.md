@@ -46,8 +46,10 @@ oc run prometheus --image=prom/prometheus:v1.4.1 --port=9090 --expose -l app=pro
 ```
 
 The last command will create a:
+
 * deploymentconfig
 * service
+
 and start up a prometheus *pod* based on the *deploymentconfig*
 
 ```code
