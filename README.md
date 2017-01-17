@@ -172,7 +172,7 @@ oc login -u system:admin -n default
 
 ## serviceaccounts
 
-Create two service accounts, one for prometheus and one for grafana with the provided shell script
+Create two service accounts, one for prometheus and one for grafana with the provided script:
 
 ```code
 ./create_serviceaccounts.sh
