@@ -158,7 +158,7 @@ there is a problem with accessing the *stats*
 curl http://<exporter svc ip>:9101/metrics | grep haproxy_up
 ```
 
-# Cluster Monitoring
+# Part 2
 
 To monitor the OpenShift cluster with Prometheus we will be using the kubernetes service discovery feature in Prometheus.
 As defined in the example prometheus-kubernetes configuration coming with the Prometheus source code.
@@ -166,25 +166,24 @@ As defined in the example prometheus-kubernetes configuration coming with the Pr
 > For this demo we will be deploying within the *default* namespace.
 > Do not do this at ~~home~~ your company..
 
-## deployment
-
-In this part we are going to deploy all of below in one go:
-
-* a haproxy-exporter for exporting the OpenShift router metrics
-* prometheus for scraping the exporter, API server, node(s) and promettheus itself
-* grafana for providing a nicer dashboard
+## Setup
 
 ```code
 oc cluster up
 oc login -u system:admin -n default
 ```
 
+## serviceaccounts
+
 Create the needed *serviceaccounts* with the provided shell script
+
 ```code
 ./create_serviceaccounts.sh
 ```
 
-Retrieve the password for the *haproxy* statistics page. And convert it to a base64 encoded string.
+## haproxy statistics username and password
+
+Retrieve the password for the *haproxy* statistics page and convert it to a base64 encoded string.
 
 ```code
 oc export dc route | grep -A1 STATS_PASSWORD
@@ -192,6 +191,8 @@ echo -n <password> | base64
 ```
 
 Edit the object file (/objects/all-in-one.yml) filling in above base64 encoded password string.
+
+## Deployment 
 
 Deploy the exporter,prometheus and grafana in one go:
 
@@ -206,6 +207,8 @@ oc get dc,svc,routes,secrets,configmaps -l 'app in (exporter,prometheus,grafana)
 
 > Note: for more info concerning the usage of the label selection using *sets* see: (https://kubernetes.io/docs/user-guide/labels)
 
+### Checks
+
 Check if the *exporter* can access the *haproxy* stats page:
 
 ```code
@@ -216,7 +219,7 @@ Navigate to the prometheus route URL and have a look at the status of the *targe
 If everything went according to plan they should all be up.
 
 
-## Where to go from here
+# Where to go from here
 
 * Prometheus Querying
 ** https://prometheus.io/docs/querying/examples/
