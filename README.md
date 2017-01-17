@@ -37,6 +37,7 @@ Before deploying everything in one go, we will have a brief look at Prometheus a
 You can create a running Prometheus instance based on the docker hub image via `oc run`. But before you do that give the default user account in the project rights to start up the pod as the *root* user. By adding the *anyuid* security context constraint (scc) to the user.
 
 > Note: later on, we will create a seperate service account for Prometheus.
+
 ```code
 oc login -u system:admin
 oc adm policy add-scc-to-user anyuid -z default -n monitoring
