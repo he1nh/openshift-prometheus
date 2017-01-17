@@ -74,10 +74,10 @@ As you can see, at the moment Prometheus is only monitoring itself. And although
 Create a [configmap](https://docs.openshift.com/container-platform/3.3/dev_guide/configmaps.html) including the prometheus config file and attach it as a *volume mount* to the pod by editing the prometheus deployment config
 
 ```code
-oc create configmap prometheus-config --from-file=prometheus.yml=file/prometheus-kubernetes.yml
+oc create configmap prometheus-config --from-file=prometheus.yml=files/prometheus-kubernetes.yml -n monitoring
 ```
 
-add below to the prometheus *deploymentconfig* (`oc edit dc prometheus`) just below the line `terminationMessagePath: /dev/termination-log`:
+add below to the deploymentconfig (`oc edit dc prometheus`) just below the line `terminationMessagePath: /dev/termination-log`:
 
 ```code
           volumeMounts:
