@@ -109,19 +109,21 @@ However, it is protected by a username:password combination.
 to retrieve the credentials:
 
 ```code
-oc login -u system:admin -n default
 oc exec <router pod> grep auth /var/lib/haproxy/conf/haproxy.config
 ```
 
 > You can find the username:password combination in multiple ways (*deploymentconfig*, environment variable, etc.).
 
-Navigate to the haproxy stats page and use above username and password to login.
+Navigate to the haproxy stats page by connecting to the router service ip on port 1936
+
+```code
+oc get svc -l router=router
+```
+
+Using the retrieved username and password to login.
+Besides an within HTML page the *stats* can also be returned as csv by ending the url on `;csv`
 
 ![haproxy statistics screenshot](/screenshots/haproxy-stats-screenshot.png)
-
-Besides within an HTML the *stats* page can also deliver the metrics in *csv* format
-
-![haproxy statistics screenshot](/screenshots/haproxy-stats-screenshot.png/;csv)
 
 ### haproxy-exporter
 
