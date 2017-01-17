@@ -158,7 +158,7 @@ there is a problem with accessing the *stats*
 curl http://<exporter svc ip>:9101/metrics | grep haproxy_up
 ```
 
-# Cluster monitoring
+# Cluster Monitoring
 
 To monitor the OpenShift cluster with Prometheus we will be using the kubernetes service discovery feature in Prometheus.
 As defined in the example prometheus-kubernetes configuration coming with the Prometheus source code.
@@ -168,7 +168,7 @@ As defined in the example prometheus-kubernetes configuration coming with the Pr
 
 ## deployment
 
-In this part we are going to deploy
+In this part we are going to deploy all of below in one go:
 
 * a haproxy-exporter for exporting the OpenShift router metrics
 * prometheus for scraping the exporter, API server, node(s) and promettheus itself
@@ -184,7 +184,16 @@ Create the needed *serviceaccounts* with the provided shell script
 ./create_serviceaccounts.sh
 ```
 
-Deploy the exporter,prometheus and grafana in one go using the *all-in-one* *deploymentconfig*
+Retrieve the password for the *haproxy* statistics page. And convert it to a base64 encoded string.
+
+```code
+oc export dc route | grep -A1 STATS_PASSWORD
+echo -n <password> | base64
+```
+
+Edit the object file (/objects/all-in-one.yml) filling in above base64 encoded password string.
+
+Deploy the exporter,prometheus and grafana in one go:
 
 ```code
 oc create -f objects/all-in-one.yml
@@ -197,43 +206,15 @@ oc get dc,svc,routes,secrets,configmaps -l 'app in (exporter,prometheus,grafana)
 
 > Note: for more info concerning the usage of the label selection using *sets* see: (https://kubernetes.io/docs/user-guide/labels)
 
-Navigate to the prometheus route URL and have a look at the status of the *targets*.
-If everything went according to plan they should all be up.
-However there is one issue: The *exporter* can't yet authenticate with the router because it does not have the correct password yet.
-
-> OpenShift default configures haproxy to provide performance metrics on port *1936* via the *stats* option in the configuration file.
-> However, it is protected by a username:password combination.
-> You can find the username:password combination in multiple ways (*deploymentconfig*, environment variable, haproxy config file, etc.).
-
-```code
-oc export dc router | grep -A1 STATS_PASS
-```
-
-or
-
-```code
-oc exec <router pod> grep auth /var/lib/haproxy/conf/haproxy.config
-```
-
-Convert the password to a base64 encoded one. And add it to the secret *haproxy-secret*:
-
-```code
-echo -n <value> | base64
-oc edit secret haproxy-secret
-```
-
-Delete the *exporter* pod to have OpenShift create a new one with correct content
-
-```code
-oc delete pod -l app=exporter
-oc get pods -l app=exporter -w
-```
-
-To see if the exporter can now access the haproxy stats, have a look at the exported metrics
+Check if the *exporter* can access the *haproxy* stats page:
 
 ```code
 curl http://<export svc ip>:9101/metrics | grep ^haproxy_up
 ```
+
+Navigate to the prometheus route URL and have a look at the status of the *targets*.
+If everything went according to plan they should all be up.
+
 
 ## Where to go from here
 
