@@ -4,6 +4,8 @@ items:
   kind: Secret
   metadata:
     name: haproxy-secret
+    labels:
+      app: 'exporter'
   type: Opaque
   data:
     username: YWRtaW4=
@@ -92,6 +94,8 @@ items:
   metadata:
     creationTimestamp: null
     name: prometheus
+    labels:
+      app: 'prometheus'
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
@@ -373,11 +377,15 @@ items:
   metadata:
     creationTimestamp: null
     name: prometheus-config
+    labels:
+      app: 'prometheus'
 - apiVersion: v1
   kind: ServiceAccount
   metadata:
     creationTimestamp: null
     name: grafana
+    labels:
+      app: 'grafana'
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
