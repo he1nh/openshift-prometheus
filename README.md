@@ -92,11 +92,6 @@ add below to the deploymentconfig (`oc edit dc prometheus`) just below the line 
         name: config
 ```
 
-
-In this project we will be using a [configmap](https://docs.openshift.com/container-platform/3.3/dev_guide/configmaps.html) to attach our custom configuration.
-
-### 
-
 ## Router Metrics
 
 For routing, OpenShift makes use of one or more  *HAProxy* instance(s).
@@ -114,6 +109,7 @@ However, it is protected by a username:password combination.
 to retrieve the credentials:
 
 ```code
+oc login -u system:admin -n default
 oc exec <router pod> grep auth /var/lib/haproxy/conf/haproxy.config
 ```
 
@@ -131,16 +127,20 @@ Besides within an HTML the *stats* page can also deliver the metrics in *csv* fo
 
 To convert the *csv* format into a format that Prometheus understands and can retrieve.
 We will make use of the *haproxy-exporter* which is part of the Prometheus project.
-For accessing the metrics the *exporter* will need to no the username and
+For accessing the metrics the *exporter* will need to know the username and
 password with which to retrieve the *csv* file. We will store these credentials in a secret.
 
-Edit the *exporter* object file and paste in the base64 encoded password string (the username is allready defined).
-And create the objects.
+Edit the *exporter* object file (/objects/exporter.yml) and paste in the base64 encoded password string (the username is allready defined):
 
 ```code
 echo -n <password> | base64
 vi objects/exporter.yml
-oc create -f objects/exporter.yml
+```
+
+And create the objects in the *default* namespace:
+
+```code
+oc create -f objects/exporter.yml -n default
 ```
 
 After the *exporter* pod has been deployed, you can test if it works by having a look at the converted/exported metrics.
