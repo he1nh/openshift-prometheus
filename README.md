@@ -30,37 +30,28 @@ oc new-project monitoring
 * an haproxy-exporter for converting the OpenShift router metrics into a format Prometheus understands
 * Grafana for providing a nicer dashboard to the graphs
 
-Befor deploying all components in gone go, we have a brief look at Prometheus and the exporter
+Before deploying everything in one go, we will have a brief look at Prometheus and the exporter
 
 ## Prometheus
 
-To create a running Prometheus instance based on the docker hub image
+You can create a running Prometheus instance based on the docker hub image via `oc run`. But before you do that give the default user account in the project rights to start up the pod as the *root* user. By adding the *anyuid* security context constraint (scc) to the user.
 
-```code
-oc run prometheus --image=prom/prometheus:v1.4.1 --port=9090 --expose -l app=prometheus
-```
-
-But the Prometheus server running in above pod will fail to start because it is assuming it
-is running under the root account.
-
-> Note: you can view the logs via `oc logs -f <prometheus pod>`
-
-To allow the server to be started up under any account (including root).
-Add the default project user to the anyuid security context constraint (scc).
-
+> Note: later on, we will create a seperate service account for Prometheus.
 ```code
 oc login -u system:admin
 oc adm policy add-scc-to-user anyuid -z default -n monitoring
+oc login -u developer -n monitoring
+oc run prometheus --image=prom/prometheus:v1.4.1 --port=9090 --expose -l app=prometheus
 ```
 
-> Note: later on, we will create a service account for Prometheus.
-
-for the changes to take effect you need to redeploy Prometheus
+The last commond will create a Prometheus:
+* deploymentconfig
+* and service
+and start up a prometheus pod based on the *deploymentconfig*
 
 ```code
-oc deploy prometheus --latest --follow
-oc get pods
-``` 
+oc get dc,svc
+```
 
 To access Prometheus from outside the cluster, you need to expose the service which was created by `oc run`
 
