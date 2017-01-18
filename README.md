@@ -12,23 +12,78 @@ on OpenShift for monitoring the cluster.
 > So located within the SDN.
 > When not, you will need to expose (`oc expose svc <service name>`) certain services before you can access them.
 
+## The Components
+
+* Prometheus for retrieving, storing and querying the metrics
+* haproxy-exporter for converting the OpenShift router metrics into a format Prometheus understands
+* optional: Grafana for providing a nicer dashboard to the graphs
+
+This README contains two ways for deploying the above in two ways
+
+1. Everything in one go using (/objects/all-in-one.yml)
+2. Deploying the components one by one
+
 ## Disclaimer
 
 I am not an OpenShift and/or Prometheus expert and this text has been written for demo purposes.
 So most of the information is at best sub optimal and most likely unsafe for production situations.
 
-# The Components
+# 1. Deploying everything in one go
 
-* Prometheus for retrieving, storing and querying the metrics
-* an haproxy-exporter for converting the OpenShift router metrics into a format Prometheus understands
-* Grafana for providing a nicer dashboard to the graphs
+> Warning: we will be deploying into the *default* namespace.
+> Do *NOT* do this at ~~home~~ your company..
 
-Before deploying everything in one go, we will have a brief look at Prometheus and the exporter in *Part 1*
+## the stage
 
-# Part 1
+```code
+oc cluster up
+oc login -u system:admin -n default
+```
 
-## Bringing up the cluster
+create the service accounts; one for prometheus and one for grafana:
 
+```code
+./create_serviceaccounts.sh
+```
+
+Retrieve the password for the *haproxy* statistics page and convert it to a base64 encoded string.
+
+```code
+oc export dc route | grep -A1 STATS_PASSWORD
+echo -n <password> | base64
+```
+
+edit the object file (/objects/all-in-one.yml) filling in above base64 encoded password string.
+
+## deployment 
+
+Deploy the exporter,prometheus and grafana in one go:
+
+```code
+oc create -f objects/all-in-one.yml
+```
+
+have look at what has been created
+
+```code
+oc get dc,svc,routes,secrets,configmaps -l 'app in (exporter,prometheus,grafana)'
+```
+
+> Note: for label selection using *sets* see: (https://kubernetes.io/docs/user-guide/labels)
+
+### Checks
+
+Check if the *exporter* can access the *haproxy* stats page:
+
+```code
+curl http://<export svc ip>:9101/metrics | grep ^haproxy_up
+```
+
+Navigate to the prometheus route URL and have a look at the status of the *targets*.
+If everything went according to plan they should all be up.
+
+# 2. Deploying
+ 
 ```code
 oc cluster up
 oc new-project monitoring
@@ -36,13 +91,22 @@ oc new-project monitoring
 
 ## Deploying Prometheus
 
-You can create a running prometheus instance based on the docker hub image via `oc run`. But before you do that, give the default user account in the project rights to start up the pod as the *root* user. You can do this by adding the *anyuid* security context constraint (scc) to the default user.
+You can create a running prometheus instance based on the docker hub image via `oc run`. This image expects to run under the root user account. Therefor we will create a sepearate serviceaccount for prometheus.
 
-> Note: later on, we will create a seperate service account for Prometheus.
+```command
+oc create serviceaccount prometheus
+```
+
+add the *anyuid* scc to the prometheus user
+
+```command
+oc login -u system:admin
+oc adm policy add-scc-to-user anyuid -z prometheus -n monitoring
+```
+
+deploy prometheus:
 
 ```code
-oc login -u system:admin
-oc adm policy add-scc-to-user anyuid -z default -n monitoring
 oc login -u developer -n monitoring
 oc run prometheus --image=prom/prometheus:v1.4.1 --port=9090 --expose -l app=prometheus
 ```
@@ -87,16 +151,25 @@ add below to the deploymentconfig (`oc edit dc prometheus`) just below the line 
         name: config
 ```
 
+Grant the prometheus pod to query the OpenShift API server:
+
+```code
+oc login -u system:admin
+oc adm policy add-cluster-role-to-user cluster-reader system:serviceaccount:monitoring:prometheus
+```
+
+Browse to the *target* status page within prometheus so see if the service discovery is working
+
 ## Router Metrics
 
-For routing, OpenShift makes use of one or more  *HAProxy* instance(s) which run under the *default* namespace.
+For routing, OpenShift makes use of one or more *HAProxy* instance(s) which run under the *default* namespace.
 
 ```code
 oc login -u system:admin -n default
 oc get pods,services
 ```
 
-Out of the box OpenShift has configured haproxy to provide performance metrics on port *1936*
+Out of the box OpenShift has configured haproxy to provide performance metrics on port *1937*
 via the *stats* option in the configuration file.
 However, it is protected by a username:password combination.
 
@@ -136,6 +209,7 @@ vi objects/exporter.yml
 And create the objects in the *default* namespace:
 
 ```code
+oc login -u system:admin
 oc create -f objects/exporter.yml -n default
 ```
 
@@ -156,70 +230,26 @@ curl http://<exporter svc ip>:9101/metrics | grep haproxy_up
 
 I will leave it up to the reader to add the haproxy-export as a srape target to the prometheus configuration file.
 
-# Part 2
-
-In this part we are going to deploy the components discussed in *Part 1* all in one go. Plus an additional Grafana instance.
-
-> Warning: we will be deploying into the *default* namespace.
-> Do *NOT* do this at ~~home~~ your company..
-
-## Setup
+### Grafana
 
 ```code
-oc cluster up
-oc login -u system:admin -n default
+oc login -u developer -n monitoring
 ```
 
-## serviceaccounts
-
-Create two service accounts, one for prometheus and one for grafana with the provided script:
+create *grafana* serviceaccount and add *anyuid* scc to user:
 
 ```code
-./create_serviceaccounts.sh
+oc create serviceaccount grafana
 ```
-
-## haproxy statistics username and password
-
-Retrieve the password for the *haproxy* statistics page and convert it to a base64 encoded string.
 
 ```code
-oc export dc route | grep -A1 STATS_PASSWORD
-echo -n <password> | base64
+oc login -u system:admin
+oc adm policy add-scc-to-user anyuid -z grafana -n monitoring
 ```
-
-Edit the object file (/objects/all-in-one.yml) filling in above base64 encoded password string.
-
-## Deployment 
-
-Deploy the exporter,prometheus and grafana in one go:
 
 ```code
-oc create -f objects/all-in-one.yml
-```
-Have  look at what has been created
-
-```code
-oc get dc,svc,routes,secrets,configmaps -l 'app in (exporter,prometheus,grafana)'
+oc create -f objects/grafana.yml
 ```
 
-> Note: for more info concerning the usage of the label selection using *sets* see: (https://kubernetes.io/docs/user-guide/labels)
-
-### Checks
-
-Check if the *exporter* can access the *haproxy* stats page:
-
-```code
-curl http://<export svc ip>:9101/metrics | grep ^haproxy_up
-```
-
-Navigate to the prometheus route URL and have a look at the status of the *targets*.
-If everything went according to plan they should all be up.
-
-## Grafana
-
-
-## Where to go from here
-
-* Prometheus Querying
-** (https://prometheus.io/docs/querying/examples/)
-
+Login to the Grafan (`oc get route`)
+The default Grafana username/password combination is *admin/admin*
