@@ -86,28 +86,16 @@ items:
 - apiVersion: v1
   kind: Route
   metadata:
-    annotations:
-      openshift.io/host.generated: "true"
-    creationTimestamp: null
     labels:
       app: prometheus
     name: prometheus
   spec:
-    host: prometheus-default.192.168.178.23.xip.io
     port:
       targetPort: 9090
     to:
       kind: Service
       name: prometheus
       weight: 100
-  status:
-    ingress:
-    - conditions:
-      - lastTransitionTime: 2017-01-15T10:23:56Z
-        status: "True"
-        type: Admitted
-      host: prometheus-default.192.168.178.23.xip.io
-      routerName: router
 - apiVersion: v1
   kind: ConfigMap
   data:
