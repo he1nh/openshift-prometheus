@@ -75,9 +75,6 @@ items:
 - apiVersion: v1
   kind: Route
   metadata:
-    annotations:
-      openshift.io/host.generated: "true"
-    creationTimestamp: null
     labels:
       app: grafana
     name: grafana
@@ -88,12 +85,5 @@ items:
       kind: Service
       name: grafana
       weight: 100
-  status:
-    ingress:
-    - conditions:
-      - lastTransitionTime: 2017-01-15T15:01:04Z
-        status: "True"
-        type: Admitted
-      routerName: router
 kind: List
 metadata: {}
