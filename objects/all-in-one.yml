@@ -9,7 +9,7 @@ items:
   type: Opaque
   data:
     username: YWRtaW4=
-    password:
+    password: null
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
