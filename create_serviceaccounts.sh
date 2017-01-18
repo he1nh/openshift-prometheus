@@ -1,6 +1,7 @@
 #!/bin/bash
 
-oc create -f objects/serviceaccounts.yml
+oc create serviceaccount prometheus
+oc create serviceaccount grafana
 
 # in images from Docker Hub both prometheus and grafana expect to run as root user
 echo "adding security context constrain 'anyuid' to user prometheus"
