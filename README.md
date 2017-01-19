@@ -91,7 +91,7 @@ oc new-project monitoring
 
 ## Deploying Prometheus
 
-You can create a running prometheus instance based on the docker hub image via `oc run`. This image expects to run under the root user account. Therefor we will create a sepearate serviceaccount for prometheus.
+You can create a running prometheus instance based on the docker hub image via `oc run`. This image expects to run under the root user account. Therefor we will create a separate serviceaccount for prometheus.
 
 ```command
 oc create serviceaccount prometheus
@@ -128,7 +128,7 @@ Navigate to the hostname in the route and browse trough the web interface includ
 
 ![prometheus screenshot](/screenshots/prometheus-screenshot-1.png)
 
-As you can see, at the moment Prometheus is only monitoring itself. And although handy for getting yourself familiar with the Prometheus query language and general workings. It won't help you in monitoring your cluster. So when you want to do something more usefull you will need to modify the configuration file (*/etc/prometheus/prometheus.yml*) and add some additional *scrape* targets. Whereby we will be using Prometheus's integrated Kubernetes Service Discovery (SD).
+As you can see, at the moment Prometheus is only monitoring itself. And although handy for getting yourself familiar with the Prometheus query language and general workings. It won't help you in monitoring your cluster. So when you want to do something more useful you will need to modify the configuration file (*/etc/prometheus/prometheus.yml*) and add some additional *scrape* targets. Whereby we will be using Prometheus's integrated Kubernetes Service Discovery (SD).
 
 Create a [configmap](https://docs.openshift.com/container-platform/3.3/dev_guide/configmaps.html) including the prometheus config file and attach it as a *volume mount* to the pod by editing the prometheus deployment config
 
@@ -188,7 +188,7 @@ oc get svc -l router=router
 ```
 
 Using the retrieved username and password to login.
-Besides an within HTML page the *stats* can also be returned as csv by ending the url on `;csv`
+Besides an within HTML page the *stats* can also be returned as csv by ending the URL on `;csv`
 
 ![haproxy statistics screenshot](/screenshots/haproxy-stats-screenshot.png)
 
@@ -199,7 +199,7 @@ We will make use of the *haproxy-exporter* which is part of the Prometheus proje
 For accessing the metrics the *exporter* will need to know the username and
 password with which to retrieve the *csv* file. We will store these credentials in a secret.
 
-Edit the *exporter* object file (/objects/exporter.yml) and paste in the base64 encoded password string (the username is allready defined):
+Edit the *exporter* object file (/objects/exporter.yml) and paste in the base64 encoded password string (the username is already defined):
 
 ```code
 echo -n <password> | base64
@@ -228,7 +228,7 @@ curl http://<exporter svc ip>:9101/metrics | grep haproxy_up
 
 ### Adding the haproxy-exporter as a scrape target
 
-I will leave it up to the reader to add the haproxy-export as a srape target to the prometheus configuration file.
+I will leave it up to the reader to add the haproxy-export as a scrape target to the prometheus configuration file.
 
 ### Grafana
 
@@ -251,5 +251,5 @@ oc adm policy add-scc-to-user anyuid -z grafana -n monitoring
 oc create -f objects/grafana.yml
 ```
 
-Login to the Grafan (`oc get route`)
+Login to the Grafana (`oc get route`)
 The default Grafana username/password combination is *admin/admin*
