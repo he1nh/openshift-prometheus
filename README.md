@@ -1,7 +1,7 @@
 # Monitoring OpenShift with Prometheus
 
 This project contains a description and accompanying files for deploying Prometheus
-on OpenShift for monitoring the cluster.
+on OpenShift.
 
 | software        | version                  |
 |-----------------|--------------------------|
@@ -18,7 +18,7 @@ on OpenShift for monitoring the cluster.
 * haproxy-exporter for converting the OpenShift router metrics into a format Prometheus understands
 * optional: Grafana for providing a nicer dashboard to the graphs
 
-This README contains two ways for deploying the above in two ways
+This text contains two ways for deploying them:
 
 1. Everything in one go using (/objects/all-in-one.yml)
 2. Deploying the components one by one
@@ -82,7 +82,7 @@ curl http://<export svc ip>:9101/metrics | grep ^haproxy_up
 Navigate to the prometheus route URL and have a look at the status of the *targets*.
 If everything went according to plan they should all be up.
 
-# 2. Deploying
+# 2. Deploying the components one by one
  
 ```code
 oc cluster up
