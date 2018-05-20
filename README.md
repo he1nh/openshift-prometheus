@@ -49,7 +49,7 @@ create the service accounts; one for prometheus and one for grafana:
 Retrieve the password for the *haproxy* statistics page and convert it to a base64 encoded string.
 
 ```code
-oc export dc route | grep -A1 STATS_PASSWORD
+oc export dc router | grep -A1 STATS_PASSWORD
 echo -n <password> | base64
 ```
 
